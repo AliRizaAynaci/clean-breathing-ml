@@ -1,16 +1,20 @@
 ﻿from fastapi import FastAPI,Response,Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 import pickle
 import pandas as pd
 from pydantic import BaseModel
 
+
 app = FastAPI()
 
-with open("modelnasa.pkl","rb") as f:
+templates = Jinja2Templates(directory="templates")
+
+with open("modelnasa01.pkl","rb") as f:
     saved_data = pickle.load(f)
     model = saved_data["model"]
     scaler = saved_data["scaler"]
 class AirqualityFeatures(BaseModel):
-    City: object
     Temperature: float
     Humidity: float
     PM2_5: float
@@ -21,10 +25,14 @@ class AirqualityFeatures(BaseModel):
     Proximity_to_Industrial_Areas: float
     Population_Density: int
 
+@app.get('/',response_class=HTMLResponse)
+async def home(request:Request):
+    return templates.TemplateResponse("index.html",{"request":request})
+
 
 @app.post("/predict")
 async def predict(features: AirqualityFeatures):
-    model_input = features.model_dump(exclude={'City'})
+    model_input = features.model_dump()
     input_data = pd.DataFrame([model_input])
     print(input_data)
 
