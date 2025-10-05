@@ -22,7 +22,6 @@ class AirqualityFeatures(BaseModel):
     NO2: float
     SO2: float
     CO: float
-    Proximity_to_Industrial_Areas: float
     Population_Density: int
 
 @app.get('/',response_class=HTMLResponse)
